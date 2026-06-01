@@ -57,6 +57,18 @@ We created a system that:
 - **Firebase**: Stores data in the cloud and acts as a messenger between devices
 - **HTML/CSS/JS**: Makes the beautiful dashboard you see on your phone/computer
 
+### Quick File Reference:
+
+| File | Type | Purpose |
+|------|------|---------|
+| `index.html` | HTML | Dashboard structure & layout |
+| `styles.css` | CSS | Colors, animations, styling |
+| `script.js` | JavaScript | Firebase connection & logic |
+| `traffic_dashboard.html` | HTML | Original combined file (reference) |
+| `IoT_traffic_control_Dashboard_may26_ESP32_part.ino` | Arduino | WiFi & cloud communication |
+| `IoT_traffic_control_Dashboard_may26_nano_part.ino` | Arduino | Sensor reading & LED control |
+| `firebase SDK.txt` | Config | Firebase credentials |
+
 ---
 
 ## 📁 Folder Structure
@@ -66,19 +78,30 @@ IoT Traffic Control/
 │
 ├── README.md (This file - explains everything!)
 ├── firebase SDK.txt (Firebase configuration code)
+│
 ├── IoT_traffic_control_Dashboard_may26_ESP32_part.ino (ESP32 code)
 ├── IoT_traffic_control_Dashboard_may26_nano_part.ino (Arduino Nano code)
-└── traffic_dashboard.html (Web dashboard for control)
+│
+├── index.html (Web dashboard HTML structure)
+├── styles.css (All CSS styling & animations)
+├── script.js (All JavaScript & Firebase logic)
+│
+└── traffic_dashboard.html (Original combined file - kept for reference)
 ```
 
 ### Simplified View:
 ```
 📦 Project Folder
- ├─ 📄 Code Files (2 Arduino programs)
- ├─ 🌐 Web Dashboard
+ ├─ 📄 Arduino Code (2 programs)
+ ├─ 🌐 Web Dashboard (3 separated files)
  ├─ ☁️ Firebase Config
  └─ 📖 This README
 ```
+
+### File Organization:
+- **Hardware Files**: Arduino Nano & ESP32 code for IoT device control
+- **Web Dashboard Files**: Separated into HTML/CSS/JavaScript for better maintenance
+- **Configuration**: Firebase SDK setup
 
 ---
 
@@ -160,6 +183,47 @@ IoT Traffic Control/
 
 ---
 
+## 🌐 Web Dashboard Architecture
+
+The web dashboard has been **separated into 3 organized files** for better maintainability and professional code structure:
+
+### **File Separation Benefits:**
+```
+BEFORE (Combined):           AFTER (Separated):
+└─ traffic_dashboard.html   ├─ index.html (Structure)
+   (800+ lines)             ├─ styles.css (Styling)
+   ├─ HTML                  └─ script.js (Logic)
+   ├─ CSS                      (Each: 200-300 lines)
+   └─ JavaScript
+```
+
+### **How They Connect:**
+
+```
+index.html (HTML)
+    ↓
+    ├─ Loads: <link rel="stylesheet" href="styles.css">
+    ├─ Loads: <script src="script.js"></script>
+    ├─ Loads: Firebase Libraries
+    ├─ Contains: All HTML elements
+    └─ Displays: UI structure
+         ↓
+    styles.css (CSS)
+         ↓
+    Applies: Colors, animations, layouts
+         ↓
+    script.js (JavaScript)
+         ↓
+    Handles: Firebase connection, updates, interactions
+```
+
+### **To Run the Dashboard:**
+1. Open **index.html** in your web browser
+2. It automatically loads styles.css and script.js
+3. Dashboard connects to Firebase and displays real-time data
+
+---
+
 ## 📊 System Flow
 
 ### Data Flow Diagram:
@@ -211,7 +275,117 @@ IoT Traffic Control/
 
 ## 📄 Important Files Explained
 
-### 1. **IoT_traffic_control_Dashboard_may26_ESP32_part.ino** 
+### **Web Dashboard Files (Separated Architecture)**
+
+### 1. **index.html** 
+**What it does:** HTML Structure & Layout
+- Contains all the page structure and elements
+- Defines all buttons, cards, and UI components
+- Links to external CSS file (styles.css)
+- Links to external JavaScript file (script.js)
+- Includes Firebase library scripts
+- Clean, semantic HTML5 markup
+
+**What You See:**
+- Header with title
+- Traffic signal visualization area
+- Traffic density display (4 directions)
+- Mode control buttons
+- Countdown timer display
+- Manual control buttons
+- Footer
+
+**How to Use:**
+- Open this file in your web browser
+- It automatically loads styles.css and script.js
+- No need to modify unless adding new UI elements
+
+---
+
+### 2. **styles.css**
+**What it does:** All Visual Styling & Animations
+- Controls colors, layouts, and spacing
+- Defines animations (@keyframes for blinking lights)
+- Responsive design (works on desktop & mobile)
+- All 250+ lines of CSS styling
+- Imported by index.html via `<link rel="stylesheet" href="styles.css">`
+
+**Key Styling Includes:**
+- Dark theme (blue/cyan colors)
+- Traffic light glow effects
+- Button hover effects
+- Responsive grid layouts
+- Animations for traffic lights
+- Countdown timer pulse effect
+
+**Animations:**
+- `blink` - Yellow light blinking effect
+- `pulse` - Countdown timer pulse effect
+
+**Benefits of Separate File:**
+- Easier to modify colors and styling
+- Faster to make design changes
+- Reusable across multiple HTML pages
+- Better browser caching
+
+---
+
+### 3. **script.js**
+**What it does:** All Interactive Functionality & Logic
+- Firebase configuration and setup
+- Real-time database connections
+- Updates UI based on sensor data
+- Handles button clicks and commands
+- All 200+ lines of JavaScript
+
+**Key Functions:**
+```
+setAuto()        - Switch to automatic mode
+setManual()      - Switch to manual mode
+sendCommand()    - Send control command to Firebase
+resetLights()    - Turn off all traffic lights
+```
+
+**What It Does:**
+1. **Reads Traffic Density** from Firebase
+   - North, South, East, West vehicle counts
+
+2. **Updates Traffic Lights** in real-time
+   - Shows which direction has green light
+   - Displays red/yellow/green with glow effects
+
+3. **Updates Countdown Timer**
+   - Shows seconds remaining for current light
+   - Changes color (blue → yellow → red) as time runs out
+
+4. **Handles User Input**
+   - Auto/Manual mode switching
+   - Manual light control buttons
+
+5. **Firebase Real-time Sync**
+   - All data updates instantly
+   - No page refresh needed
+
+**Benefits of Separate File:**
+- Easier to debug JavaScript
+- Faster development and testing
+- Logic separated from HTML structure
+- Reusable code
+
+---
+
+### 4. **traffic_dashboard.html** 
+**What it does:** Original Combined File
+- Contains all HTML, CSS, and JavaScript in one file
+- Kept for reference and backward compatibility
+- Functionally identical to separated version
+- Use `index.html` instead for better organization
+
+---
+
+### **Hardware Files**
+
+### 5. **IoT_traffic_control_Dashboard_may26_ESP32_part.ino** 
 **What it does:** This is the "WiFi Brain"
 - Connects to internet using WiFi
 - Reads traffic data from sensors (via Nano)
@@ -230,7 +404,7 @@ IoT Traffic Control/
 
 ---
 
-### 2. **IoT_traffic_control_Dashboard_may26_nano_part.ino**
+### 6. **IoT_traffic_control_Dashboard_may26_nano_part.ino**
 **What it does:** This is the "Traffic Controller Brain"
 - Reads 8 IR sensors (detect vehicles)
 - Decides which light should be green
@@ -262,26 +436,7 @@ Yellow Light:    D6 (Shared for all)
 
 ---
 
-### 3. **traffic_dashboard.html**
-**What it does:** This is the "Control Panel You See"
-- Beautiful web interface (works on phone/computer)
-- Shows live traffic density
-- Shows which light is currently green
-- Has buttons to switch lights manually
-- Shows current mode (AUTO/MANUAL)
-- Real-time updates from Firebase
-
-**What You See on Dashboard:**
-- Traffic status for North, South, East, West
-- Number of vehicles in each direction
-- Current active green light
-- Mode selector (AUTO/MANUAL)
-- Control buttons
-- Live updates every second
-
----
-
-### 4. **firebase SDK.txt**
+### 7. **firebase SDK.txt**
 **What it does:** Configuration for Cloud Connection
 - Firebase project credentials
 - Database URL
@@ -398,10 +553,11 @@ Database Layout:
 
 **3. Deploy Dashboard:**
 ```
-1. Open traffic_dashboard.html in any web browser
-2. Make sure ESP32 is connected to WiFi
-3. Check Firebase connection
-4. Dashboard will show live updates
+1. Open index.html in any web browser (NEW - separated version)
+2. Alternative: traffic_dashboard.html (Original - combined version)
+3. Make sure ESP32 is connected to WiFi
+4. Check Firebase connection
+5. Dashboard will show live updates
 ```
 
 ### Operating the System:
