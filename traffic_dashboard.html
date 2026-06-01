@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Traffic IoT Dashboard</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+body{
+    background:#0f172a;
+    color:white;
+    overflow-x:hidden;
+}
+
+.header{
+    width:100%;
+    padding:20px;
+    text-align:center;
+    background:#111827;
+    box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+.header h1{
+    font-size:32px;
+    color:#38bdf8;
+}
+
+.container{
+    width:100%;
+    padding:20px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(350px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:#1e293b;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 0 15px rgba(0,0,0,0.4);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card h2{
+    margin-bottom:20px;
+    color:#38bdf8;
+}
+
+.modeBox{
+    display:flex;
+    gap:15px;
+    margin-top:20px;
+}
+
+button{
+    padding:15px 20px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.autoBtn{
+    background:#22c55e;
+    color:white;
+}
+
+.manualBtn{
+    background:#ef4444;
+    color:white;
+}
+
+.controlBtn{
+    width:100%;
+    margin-top:10px;
+    background:#2563eb;
+    color:white;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+.trafficContainer{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:50px;
+    flex-wrap:wrap;
+}
+
+.signal{
+    width:90px;
+    background:#111827;
+    padding:15px;
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+    align-items:center;
+    box-shadow:0 0 15px rgba(0,0,0,0.5);
+}
+
+.light{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    background:#222;
+    transition:0.3s;
+}
+
+.red.active{
+    background:#ff0000;
+
+    box-shadow:
+    0 0 20px #ff0000,
+    0 0 40px #ff0000,
+    0 0 60px #ff0000,
+    0 0 80px #ff0000;
+
+    transform:scale(1.1);
+}
+
+.yellow.active{
+    background:#ffff00;
+
+    box-shadow:
+    0 0 20px #ffff00,
+    0 0 40px #ffff00,
+    0 0 60px #ffff00,
+    0 0 80px #ffff00;
+
+    animation:blink 1s infinite;
+
+    transform:scale(1.1);
+}
+
+.green.active{
+    background:#00ff00;
+
+    box-shadow:
+    0 0 20px #00ff00,
+    0 0 40px #00ff00,
+    0 0 60px #00ff00,
+    0 0 80px #00ff00;
+
+    transform:scale(1.1);
+}
+
+.controlBtn:active{
+
+    transform:scale(0.95);
+
+    box-shadow:
+    0 0 20px #2563eb,
+    0 0 40px #2563eb;
+}
+
+@keyframes blink{
+
+    0%{
+        opacity:1;
+        transform:scale(1);
+    }
+
+    50%{
+        opacity:0.1;
+        transform:scale(0.85);
+    }
+
+    100%{
+        opacity:1;
+        transform:scale(1.1);
+    }
+}
+
+.densityBox{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.densityCard{
+    background:#0f172a;
+    padding:20px;
+    border-radius:15px;
+    text-align:center;
+}
+
+.densityCard h3{
+    margin-bottom:10px;
+}
+
+.value{
+    font-size:35px;
+    font-weight:bold;
+    color:#38bdf8;
+}
+
+.status{
+    margin-top:20px;
+    padding:15px;
+    border-radius:15px;
+    background:#0f172a;
+    text-align:center;
+    font-size:22px;
+    font-weight:bold;
+    color:#22c55e;
+}
+
+.footer{
+    text-align:center;
+    margin-top:30px;
+    color:#94a3b8;
+}
+
+@keyframes pulse{
+
+0%{
+transform:scale(1);
+}
+
+50%{
+transform:scale(1.08);
+}
+
+100%{
+transform:scale(1);
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🚦 Smart Traffic IoT Dashboard</h1>
+</div>
+
+<div class="container">
+
+<div class="grid">
+
+<!-- SIGNAL ANIMATION -->
+<div class="card">
+
+<h2>Live Traffic Signals</h2>
+
+<div class="trafficContainer">
+
+<!-- NORTH SOUTH -->
+<div class="signal">
+
+<div id="nsRed" class="light red"></div>
+
+<div id="nsYellow" class="light yellow"></div>
+
+<div id="nsGreen" class="light green"></div>
+
+</div>
+
+<!-- EAST WEST -->
+<div class="signal">
+
+<div id="ewRed" class="light red"></div>
+
+<div id="ewYellow" class="light yellow"></div>
+
+<div id="ewGreen" class="light green"></div>
+
+</div>
+
+</div>
+
+<div class="status" id="statusText">
+WAITING...
+</div>
+
+</div>
+
+<!-- DENSITY -->
+<div class="card">
+
+<h2>Traffic Density</h2>
+
+<div class="densityBox">
+
+<div class="densityCard">
+<h3>North</h3>
+<div class="value" id="north">0</div>
+</div>
+
+<div class="densityCard">
+<h3>South</h3>
+<div class="value" id="south">0</div>
+</div>
+
+<div class="densityCard">
+<h3>East</h3>
+<div class="value" id="east">0</div>
+</div>
+
+<div class="densityCard">
+<h3>West</h3>
+<div class="value" id="west">0</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- MODE -->
+<div class="card">
+
+<h2>Mode Control</h2>
+
+<div class="modeBox">
+
+<button class="autoBtn" onclick="setAuto()">
+AUTO MODE
+</button>
+
+<button class="manualBtn" onclick="setManual()">
+MANUAL MODE
+</button>
+
+</div>
+
+<div class="status" id="modeStatus">
+AUTO
+</div>
+
+<div class="card">
+
+<h2>Signal Countdown</h2>
+
+<div style="
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+padding:20px;
+">
+
+<div id="countdown"
+style="
+font-size:70px;
+font-weight:bold;
+color:#38bdf8;
+text-shadow:
+0 0 20px #38bdf8,
+0 0 40px #38bdf8;
+animation:pulse 1s infinite;
+">
+30
+</div>
+
+<div id="countLabel"
+style="
+margin-top:10px;
+font-size:22px;
+color:#94a3b8;
+">
+SECONDS REMAINING
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MANUAL CONTROL -->
+<div class="card">
+
+<h2>Manual Signal Control</h2>
+<button class="controlBtn"
+onclick="sendCommand('YELLOW')">
+YELLOW BLINK
+</button>
+
+<button class="controlBtn"
+onclick="sendCommand('NS_GREEN')">
+North-South GREEN
+</button>
+
+<button class="controlBtn"
+onclick="sendCommand('EW_GREEN')">
+East-West GREEN
+</button>
+
+<button class="controlBtn"
+onclick="sendCommand('ALL_RED')">
+ALL RED
+</button>
+
+</div>
+
+</div>
+
+<div class="footer">
+Smart IoT Traffic Signal System
+</div>
+
+</div>
+
+<script>
+
+//////////////////////////////////////////////////////////
+// FIREBASE CONFIG
+//////////////////////////////////////////////////////////
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2dmUCogmK_XpAGRpGzIk0WAMLOdi3-mQ",
+  authDomain: "traffic-control-26.firebaseapp.com",
+  databaseURL: "https://traffic-control-26-default-rtdb.firebaseio.com",
+  projectId: "traffic-control-26",
+  storageBucket: "traffic-control-26.firebasestorage.app",
+  messagingSenderId: "238459371020",
+  appId: "1:238459371020:web:20fed4c71473a69626b829"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.database();
+
+//////////////////////////////////////////////////////////
+// REALTIME DATABASE REFERENCES
+//////////////////////////////////////////////////////////
+
+const northRef =
+db.ref("TrafficSystem/density/north");
+
+const southRef =
+db.ref("TrafficSystem/density/south");
+
+const eastRef =
+db.ref("TrafficSystem/density/east");
+
+const westRef =
+db.ref("TrafficSystem/density/west");
+
+const statusRef =
+db.ref("TrafficSystem/status");
+
+const modeRef =
+db.ref("TrafficSystem/currentMode");
+
+const timerRef =
+db.ref("TrafficSystem/timer");
+
+//////////////////////////////////////////////////////////
+// UPDATE DENSITY
+//////////////////////////////////////////////////////////
+
+northRef.on("value",(snap)=>{
+    document.getElementById("north").innerHTML =
+    snap.val();
+});
+
+southRef.on("value",(snap)=>{
+    document.getElementById("south").innerHTML =
+    snap.val();
+});
+
+eastRef.on("value",(snap)=>{
+    document.getElementById("east").innerHTML =
+    snap.val();
+});
+
+westRef.on("value",(snap)=>{
+    document.getElementById("west").innerHTML =
+    snap.val();
+});
+
+//////////////////////////////////////////////////////////
+// SIGNAL STATUS
+//////////////////////////////////////////////////////////
+
+statusRef.on("value",(snap)=>{
+
+    let status = snap.val();
+
+    console.log("STATUS:", status);
+
+    document.getElementById("statusText")
+    .innerHTML = status;
+
+    resetLights();
+
+    ////////////////////////////////////////////////////
+    // NS GREEN
+    ////////////////////////////////////////////////////
+
+    if(status === "NS_GREEN_ACTIVE")
+    {
+        document.getElementById("nsGreen")
+        .classList.add("active");
+
+        document.getElementById("ewRed")
+        .classList.add("active");
+    }
+
+    ////////////////////////////////////////////////////
+    // EW GREEN
+    ////////////////////////////////////////////////////
+
+    else if(status === "EW_GREEN_ACTIVE")
+    {
+        document.getElementById("ewGreen")
+        .classList.add("active");
+
+        document.getElementById("nsRed")
+        .classList.add("active");
+    }
+	else if(status === "ALL_RED")
+{
+    document.getElementById("nsRed")
+    .classList.add("active");
+
+    document.getElementById("ewRed")
+    .classList.add("active");
+}
+
+    ////////////////////////////////////////////////////
+    // YELLOW
+    ////////////////////////////////////////////////////
+
+    else if(status === "YELLOW")
+{
+    resetLights();
+
+    document.getElementById("nsYellow")
+    .classList.add("active");
+
+    document.getElementById("ewYellow")
+    .classList.add("active");
+
+    document.getElementById("statusText")
+    .innerHTML = "YELLOW BLINKING";
+}
+
+});
+
+//////////////////////////////////////////////////////////
+// MODE STATUS
+//////////////////////////////////////////////////////////
+
+modeRef.on("value",(snap)=>{
+
+    let mode = snap.val();
+
+    document.getElementById("modeStatus")
+    .innerHTML = mode;
+});
+
+
+//////////////////////////////////////////////////////////
+// TIMER
+//////////////////////////////////////////////////////////
+
+timerRef.on("value",(snap)=>{
+
+    let time = snap.val();
+
+    if(time == null)
+        return;
+
+    document.getElementById("countdown")
+    .innerHTML = time;
+
+    //////////////////////////////////////////////////////
+    // COLOR CHANGE
+    //////////////////////////////////////////////////////
+
+    if(time <= 5)
+    {
+        document.getElementById("countdown")
+        .style.color = "#ff0000";
+    }
+
+    else if(time <= 10)
+    {
+        document.getElementById("countdown")
+        .style.color = "#ffff00";
+    }
+
+    else
+    {
+        document.getElementById("countdown")
+        .style.color = "#38bdf8";
+    }
+});
+
+//////////////////////////////////////////////////////////
+// RESET LIGHTS
+//////////////////////////////////////////////////////////
+
+function resetLights()
+{
+    let lights = document.querySelectorAll(".light");
+
+    lights.forEach(light=>{
+        light.classList.remove("active");
+    });
+}
+
+//////////////////////////////////////////////////////////
+// AUTO MODE
+//////////////////////////////////////////////////////////
+
+function setAuto()
+{
+    db.ref("TrafficSystem/mode")
+    .set("AUTO");
+}
+
+//////////////////////////////////////////////////////////
+// MANUAL MODE
+//////////////////////////////////////////////////////////
+
+function setManual()
+{
+    db.ref("TrafficSystem/mode")
+    .set("MANUAL");
+}
+
+//////////////////////////////////////////////////////////
+// SEND COMMAND
+//////////////////////////////////////////////////////////
+
+function sendCommand(cmd)
+{
+    db.ref("TrafficSystem/command")
+    .set(cmd);
+}
+
+</script>
+
+</body>
+</html>
