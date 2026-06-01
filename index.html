@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Smart Traffic IoT Dashboard</title>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<!-- External CSS -->
+<link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+<div class="header">
+    <h1>🚦 Smart Traffic IoT Dashboard</h1>
+</div>
+
+<div class="container">
+
+<div class="grid">
+
+<!-- SIGNAL ANIMATION -->
+<div class="card">
+
+<h2>Live Traffic Signals</h2>
+
+<div class="trafficContainer">
+
+<!-- NORTH SOUTH -->
+<div class="signal">
+
+<div id="nsRed" class="light red"></div>
+
+<div id="nsYellow" class="light yellow"></div>
+
+<div id="nsGreen" class="light green"></div>
+
+</div>
+
+<!-- EAST WEST -->
+<div class="signal">
+
+<div id="ewRed" class="light red"></div>
+
+<div id="ewYellow" class="light yellow"></div>
+
+<div id="ewGreen" class="light green"></div>
+
+</div>
+
+</div>
+
+<div class="status" id="statusText">
+WAITING...
+</div>
+
+</div>
+
+<!-- DENSITY -->
+<div class="card">
+
+<h2>Traffic Density</h2>
+
+<div class="densityBox">
+
+<div class="densityCard">
+<h3>North</h3>
+<div class="value" id="north">0</div>
+</div>
+
+<div class="densityCard">
+<h3>South</h3>
+<div class="value" id="south">0</div>
+</div>
+
+<div class="densityCard">
+<h3>East</h3>
+<div class="value" id="east">0</div>
+</div>
+
+<div class="densityCard">
+<h3>West</h3>
+<div class="value" id="west">0</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- MODE -->
+<div class="card">
+
+<h2>Mode Control</h2>
+
+<div class="modeBox">
+
+<button class="autoBtn" onclick="setAuto()">
+AUTO MODE
+</button>
+
+<button class="manualBtn" onclick="setManual()">
+MANUAL MODE
+</button>
+
+</div>
+
+<div class="status" id="modeStatus">
+AUTO
+</div>
+
+<div class="card">
+
+<h2>Signal Countdown</h2>
+
+<div style="
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+padding:20px;
+">
+
+<div id="countdown"
+style="
+font-size:70px;
+font-weight:bold;
+color:#38bdf8;
+text-shadow:
+0 0 20px #38bdf8,
+0 0 40px #38bdf8;
+animation:pulse 1s infinite;
+">
+30
+</div>
+
+<div id="countLabel"
+style="
+margin-top:10px;
+font-size:22px;
+color:#94a3b8;
+">
+SECONDS REMAINING
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- MANUAL CONTROL -->
+<div class="card">
+
+<h2>Manual Signal Control</h2>
+<button class="controlBtn"
+onclick="sendCommand('YELLOW')">
+YELLOW BLINK
+</button>
+
+<button class="controlBtn"
+onclick="sendCommand('NS_GREEN')">
+North-South GREEN
+</button>
+
+<button class="controlBtn"
+onclick="sendCommand('EW_GREEN')">
+East-West GREEN
+</button>
+
+<button class="controlBtn"
+onclick="sendCommand('ALL_RED')">
+ALL RED
+</button>
+
+</div>
+
+</div>
+
+<div class="footer">
+Smart IoT Traffic Signal System
+</div>
+
+</div>
+
+<!-- External JavaScript -->
+<script src="script.js"></script>
+
+</body>
+</html>
