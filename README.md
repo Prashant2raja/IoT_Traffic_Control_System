@@ -614,10 +614,4 @@ After understanding this project, you'll know about:
 
 ---
 
-## 👨‍💻 Made With ❤️
 
-This smart traffic control system demonstrates the power of IoT technology in solving real-world problems. Perfect for students learning about technology, electronics, and problem-solving!
-
----
-
-**Happy Learning! 🚀**
